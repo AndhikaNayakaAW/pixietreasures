@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'screens/add_item_form.dart'; // Import the form page
+import 'widgets/drawer.dart';        // Import the drawer
 
 void main() {
   runApp(PixieTreasuresApp());
@@ -38,6 +40,7 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('PixieTreasures'),
       ),
+      drawer: const AppDrawer(), // Add the drawer here
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -46,10 +49,20 @@ class MyHomePage extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: button.color, // Changed from `primary` to `backgroundColor`
+                  backgroundColor: button.color,
                 ),
                 onPressed: () {
-                  _showSnackbar(context, "You have pressed the ${button.text} button");
+                  if (button.text == "Add Product") {
+                    // Navigate to the AddItemFormPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddItemFormPage()),
+                    );
+                  } else {
+                    _showSnackbar(
+                        context, "You have pressed the ${button.text} button");
+                  }
                 },
                 icon: Icon(button.icon),
                 label: Text(button.text),

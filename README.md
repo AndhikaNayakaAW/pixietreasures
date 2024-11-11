@@ -72,3 +72,82 @@ This assignment focuses on implementing a simple E-Commerce application in Flutt
 1. Navigate to the project directory in the terminal.
 2. Use `flutter run` to launch the app and test the functionality.
 
+
+## Assignment 8: Flutter Navigation, Layouts, Forms, and Input Elements
+
+### Questions and Answers
+
+1. **What is the purpose of `const` in Flutter? Explain the advantages of using `const` in Flutter code. When should we use `const`, and when should it not be used?**  
+   - **Purpose of `const`:** The `const` keyword is used to create constant values and widgets that are immutable and determined at compile-time. It signals that a widget or value will not change after being created.
+   - **Advantages of using `const`:**
+     - **Performance Improvement:** Flutter can optimize and reuse the widget, reducing rebuilds and improving performance.
+     - **Predictability:** Const widgets ensure that the UI behaves predictably, as they are immutable.
+   - **When to use `const`:** Use `const` when the value is known at compile-time and does not change, such as static text or layout properties.
+   - **When not to use `const`:** Avoid using `const` when the widget relies on runtime data or when the state of the widget is expected to change.
+
+2. **Explain and compare the usage of `Column` and `Row` in Flutter. Provide example implementations of each layout widget!**  
+   - **Column:**
+     - Arranges widgets vertically (top to bottom).
+     - Commonly used when displaying elements stacked on top of each other.
+     - Example:
+       ```dart
+       Column(
+         children: [
+           Text('Item 1'),
+           Text('Item 2'),
+           Text('Item 3'),
+         ],
+       );
+       ```
+   - **Row:**
+     - Arranges widgets horizontally (left to right).
+     - Useful for placing elements side by side.
+     - Example:
+       ```dart
+       Row(
+         children: [
+           Icon(Icons.star),
+           Text('Rating'),
+         ],
+       );
+       ```
+
+3. **List the input elements you used on the form page in this assignment. Are there other Flutter input elements you didn’t use in this assignment? Explain!**  
+   - **Input elements used:**
+     - `TextFormField` for the **name** field.
+     - `TextFormField` with `keyboardType: TextInputType.number` for the **amount** field.
+     - `TextFormField` for the **description** field with a multi-line setup (`maxLines: 3`).
+   - **Other input elements not used:**
+     - `Checkbox` for boolean selection.
+     - `Radio` and `RadioListTile` for selecting one option from a set.
+     - `Switch` for toggling states (on/off).
+     - `Slider` for choosing a value from a range.
+     - `DropdownButton` for selecting from a dropdown list.
+     - `DatePicker` for date selection.
+     
+     These input elements were not needed in this assignment as only text and numeric input fields were required.
+
+4. **How do you set the theme within a Flutter application to ensure consistency? Did you implement a theme in your application?**  
+   - **Setting the theme:** Use the `ThemeData` object within the `MaterialApp` widget to set the theme for an entire app. This ensures consistent styling across all widgets and pages.
+   - **Example:**
+     ```dart
+     MaterialApp(
+       title: 'PixieTreasures',
+       theme: ThemeData(
+         primarySwatch: Colors.deepPurple,
+       ),
+       home: MyHomePage(),
+     );
+     ```
+   - **Implementation in the app:** Yes, the `PixieTreasures` app has a theme applied with `primarySwatch` set to `Colors.deepPurple` for a unified look.
+
+5. **How do you manage navigation in a multi-page Flutter application?**  
+   - **Navigation management:** Navigation is handled using the `Navigator` widget with methods like `Navigator.push()`, `Navigator.pop()`, and `Navigator.pushReplacement()`.
+   - **Example for navigating to a new page:**
+     ```dart
+     Navigator.push(
+       context,
+       MaterialPageRoute(builder: (context) => AddItemFormPage()),
+     );
+     ```
+   - This stack-based approach allows moving between pages and managing the back stack for page transitions.
