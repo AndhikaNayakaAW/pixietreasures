@@ -151,3 +151,150 @@ This assignment focuses on implementing a simple E-Commerce application in Flutt
      );
      ```
    - This stack-based approach allows moving between pages and managing the back stack for page transitions.
+
+## Assignment 9: Integrating Django Web Service with Flutter Application
+
+This assignment focuses on integrating a Flutter application with a Django backend, implementing features such as user authentication, data retrieval, and data submission.
+
+### Questions and Answers
+
+1. **Why do we need to create a model to retrieve or send JSON data? Will an error occur if we don't create a model first?**
+
+   - **Purpose of a Model:**
+     - Models in Django define the structure of data stored in the database and allow interaction through the ORM.
+     - They facilitate data serialization into JSON format for API consumption.
+     - Without a model, it is impossible to structure, validate, or manipulate data effectively.
+
+   - **Errors Without a Model:**
+     - Django views such as `serializers.serialize` or database queries will throw errors because the model schema is missing.
+     - APIs requiring JSON responses cannot function properly without a structured model.
+
+2. **What is the function of the `http` library that you implemented for this task?**
+
+   - **Functionality:**
+     - The `http` library in Flutter enables HTTP communication with the Django backend.
+     - It supports various request methods, such as `GET`, `POST`, and `DELETE`, for data exchange.
+
+   - **Examples:**
+     - `GET` Request:
+       ```dart
+       final response = await http.get(Uri.parse('http://localhost:8000/json/'));
+       ```
+     - `POST` Request:
+       ```dart
+       final response = await http.post(
+         Uri.parse('http://localhost:8000/create-product-flutter/'),
+         headers: {"Content-Type": "application/json"},
+         body: jsonEncode({
+           "name": _name,
+           "price": _price.toString(),
+           "description": _description,
+           "rating": _rating.toString(),
+         }),
+       );
+       ```
+
+3. **What is the function of `CookieRequest`, and why is it necessary to share the `CookieRequest` instance with all components in the Flutter app?**
+
+   - **Purpose of `CookieRequest`:**
+     - Manages session cookies for authenticated requests.
+     - Ensures session persistence by attaching cookies to each request automatically.
+
+   - **Sharing the Instance:**
+     - Sharing the same `CookieRequest` instance across the app allows all components to maintain the same session state.
+     - For example, it ensures that a user logged in through one component can access protected resources in another.
+
+4. **Explain the mechanism of data transmission, from input to display in Flutter.**
+
+   - **Mechanism:**
+     1. **Input**:
+        - Data is entered in Flutter (e.g., product name and price in a form).
+        - Example:
+          ```dart
+          final response = await request.postJson(
+            "http://localhost:8000/create-product-flutter/",
+            jsonEncode({
+              "name": _name,
+              "price": _price.toString(),
+              "description": _description,
+              "rating": _rating.toString(),
+            }),
+          );
+          ```
+     2. **Data Transmission**:
+        - Flutter sends the data to Django via an HTTP POST request.
+     3. **Data Processing**:
+        - Django validates the data and stores it in the database.
+     4. **Display**:
+        - Flutter retrieves the data using a GET request and displays it using widgets such as `ListView`.
+
+5. **Explain the authentication mechanism from login, register, to logout.**
+
+   - **Mechanism**:
+     1. **Register**:
+        - Flutter sends user data (username and password) to Django's `/auth/register/` endpoint.
+        - Django creates a new user and returns a success response.
+     2. **Login**:
+        - Flutter sends credentials to `/auth/login/`.
+        - Django verifies the credentials, starts a session, and returns session cookies.
+        - These cookies are stored by `CookieRequest` for future authenticated requests.
+     3. **Logout**:
+        - Flutter sends a request to `/auth/logout/`.
+        - Django clears the session and invalidates the cookies.
+
+6. **How do you implement the checklist above step by step?**
+
+   - **Step-by-Step Implementation**:
+     1. **Ensure Django Deployment**:
+        - Start the Django development server locally:
+          ```bash
+          python manage.py runserver
+          ```
+        - Ensure all endpoints (e.g., `/json/`, `/auth/login/`) are functional.
+
+     2. **Registration Feature**:
+        - Implement the `RegisterPage` in Flutter.
+        - Send registration data to `/auth/register/` via a POST request.
+        - On success, navigate to the login page.
+
+     3. **Login Feature**:
+        - Implement the `LoginPage` in Flutter.
+        - Authenticate user credentials via a POST request to `/auth/login/`.
+        - Store the session cookies in `CookieRequest`.
+
+     4. **Custom Model in Django**:
+        - Define a `Product` model:
+          ```python
+          class Product(models.Model):
+              name = models.CharField(max_length=255)
+              price = models.PositiveIntegerField()
+              description = models.TextField()
+              rating = models.PositiveIntegerField()
+              user = models.ForeignKey(User, on_delete=models.CASCADE)
+          ```
+
+     5. **List of Items**:
+        - Implement `ProductEntryPage` in Flutter.
+        - Fetch product data via a GET request to `/json/`.
+        - Parse and display product details in a `ListView`.
+
+     6. **Detail Page**:
+        - Implement `ProductDetail` in Flutter.
+        - Pass the selected product details from the list page.
+        - Display all attributes and add a button to navigate back to the list.
+
+     7. **Filter Items by User**:
+        - Modify Django’s `/json/` endpoint to return only items belonging to the logged-in user:
+          ```python
+          def show_json(request):
+              data = Product.objects.filter(user=request.user)
+              return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+          ```
+---
+
+## Running the Application
+
+1. Ensure the Django server is running locally.
+2. Launch the Flutter app using:
+   ```bash
+   flutter run

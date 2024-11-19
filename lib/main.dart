@@ -1,84 +1,33 @@
 import 'package:flutter/material.dart';
-import 'screens/add_item_form.dart'; // Import the form page
-import 'widgets/drawer.dart';        // Import the drawer
+import 'package:pixietreasures/screens/menu.dart';
+import 'package:pixietreasures/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(PixieTreasuresApp());
+  runApp(const MyApp());
 }
 
-class PixieTreasuresApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PixieTreasures',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  MyHomePage({Key? key}) : super(key: key);
-
-  final List<ButtonData> buttons = [
-    ButtonData("View Product List", Icons.list, Colors.blue),
-    ButtonData("Add Product", Icons.add, Colors.green),
-    ButtonData("Logout", Icons.logout, Colors.red),
-  ];
-
-  void _showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('PixieTreasures'),
-      ),
-      drawer: const AppDrawer(), // Add the drawer here
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: buttons.map((button) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: button.color,
-                ),
-                onPressed: () {
-                  if (button.text == "Add Product") {
-                    // Navigate to the AddItemFormPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddItemFormPage()),
-                    );
-                  } else {
-                    _showSnackbar(
-                        context, "You have pressed the ${button.text} button");
-                  }
-                },
-                icon: Icon(button.icon),
-                label: Text(button.text),
-              ),
-            );
-          }).toList(),
+    return Provider(
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
+      child: MaterialApp(
+        title: 'PixieTreasures',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.lightBlue,
+          ).copyWith(secondary: Colors.lightBlue[400]),
         ),
+        home: LoginPage(), // Changed the home page to LoginPage
       ),
     );
   }
-}
-
-class ButtonData {
-  final String text;
-  final IconData icon;
-  final Color color;
-
-  ButtonData(this.text, this.icon, this.color);
 }
