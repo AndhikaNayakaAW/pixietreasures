@@ -4,9 +4,11 @@
 
 import 'dart:convert';
 
+// Function to convert JSON string to a list of ProductEntry objects
 List<ProductEntry> productEntryFromJson(String str) => List<ProductEntry>.from(
     json.decode(str).map((x) => ProductEntry.fromJson(x)));
 
+// Function to convert a list of ProductEntry objects to JSON string
 String productEntryToJson(List<ProductEntry> data) => json.encode(
     List<dynamic>.from(data.map((x) => x.toJson())));
 
@@ -22,8 +24,8 @@ class ProductEntry {
   });
 
   factory ProductEntry.fromJson(Map<String, dynamic> json) => ProductEntry(
-        model: json["model"],
-        pk: json["pk"],
+        model: json["model"] ?? "", // Default to an empty string if null
+        pk: json["pk"] ?? "", // Default to an empty string if null
         fields: Fields.fromJson(json["fields"]),
       );
 
@@ -50,11 +52,11 @@ class Fields {
   });
 
   factory Fields.fromJson(Map<String, dynamic> json) => Fields(
-        user: json["user"],
-        name: json["name"],
-        price: json["price"],
-        description: json["description"],
-        rating: json["rating"],
+        user: json["user"] ?? 0, // Default to 0 if null
+        name: json["name"] ?? "", // Default to an empty string if null
+        price: json["price"] ?? 0, // Default to 0 if null
+        description: json["description"] ?? "", // Default to an empty string if null
+        rating: json["rating"] ?? 0, // Default to 0 if null
       );
 
   Map<String, dynamic> toJson() => {

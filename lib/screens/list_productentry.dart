@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -13,26 +14,34 @@ class ProductEntryPage extends StatefulWidget {
 }
 
 class _ProductEntryPageState extends State<ProductEntryPage> {
-  Future<List<ProductEntry>> fetchProduct(CookieRequest request) async {
+Future<List<ProductEntry>> fetchProduct(CookieRequest request) async {
+  try {
     // Fetch product data from the server
     final response = await request.get('http://localhost:8000/json/');
-    
-    // Decoding the response into JSON
-    var data = response;
-    
-    // Convert JSON data to a list of ProductEntry objects
-    List<ProductEntry> listProduct = [];
-    for (var d in data) {
-      if (d != null) {
-        listProduct.add(ProductEntry.fromJson(d));
-      }
+
+    // Check if the response is empty
+    if (response.isEmpty) {
+      throw Exception("No data returned from the server.");
     }
+
+    // Convert response to List<ProductEntry>
+    List<ProductEntry> listProduct = (response as List)
+        .map((item) => ProductEntry.fromJson(item as Map<String, dynamic>))
+        .toList();
+
     return listProduct;
+  } catch (error) {
+    // Log the error
+    print("Error fetching products: $error");
+    throw Exception("Failed to load products.");
   }
-  
+}
+
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Entry List'),
@@ -42,69 +51,76 @@ class _ProductEntryPageState extends State<ProductEntryPage> {
       drawer: const LeftDrawer(),
       body: FutureBuilder(
         future: fetchProduct(request),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.data == null) {
+        builder: (context, AsyncSnapshot<List<ProductEntry>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show loading indicator while fetching data
             return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Show error message if fetching data failed
+            return Center(
+              child: Text(
+                "Error: ${snapshot.error}",
+                style: const TextStyle(color: Colors.red),
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            // Show message if there are no products
+            return const Center(
+              child: Text(
+                'There is no product data in PixieTreasures.',
+                style: TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
+              ),
+            );
           } else {
-            if (!snapshot.hasData) {
-              return const Column(
-                children: [
-                  Text(
-                    'There is no product data in PixieTreasures.',
-                    style: TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
-                  ),
-                  SizedBox(height: 8),
-                ],
-              );
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (_, index) {
-                  var product = snapshot.data![index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetail(product: product),
+            // Display the list of products
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (_, index) {
+                var product = snapshot.data![index];
+                return GestureDetector(
+                  onTap: () {
+                    // Navigate to product details page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetail(product: product),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 2,
+                          blurRadius: 5,
                         ),
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      padding: const EdgeInsets.all(20.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product.fields.name,
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text("Price: \$${product.fields.price}"),
-                          const SizedBox(height: 10),
-                          Text("Rating: ${product.fields.rating}"),
-                        ],
-                      ),
+                      ],
                     ),
-                  );
-                },
-              );
-            }
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.fields.name,
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text("Price: \$${product.fields.price}"),
+                        const SizedBox(height: 10),
+                        Text("Rating: ${product.fields.rating}"),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
           }
         },
       ),

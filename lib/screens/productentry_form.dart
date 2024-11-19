@@ -17,7 +17,9 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
   String _name = "";
   int _price = 0;
   String _description = "";
-  int _rating = 0;
+  String _rarity = "";
+  int _stock = 0;
+  String _imageUrl = "";
 
   @override
   Widget build(BuildContext context) {
@@ -115,13 +117,37 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                   },
                 ),
               ),
-              // Rating Field
+              // Rarity Field
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    hintText: "Rating",
-                    labelText: "Rating",
+                    hintText: "Rarity",
+                    labelText: "Rarity",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _rarity = value!;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Rarity cannot be empty!";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              // Stock Field
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Stock",
+                    labelText: "Stock",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -129,15 +155,39 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                   keyboardType: TextInputType.number,
                   onChanged: (String? value) {
                     setState(() {
-                      _rating = int.tryParse(value!) ?? 0;
+                      _stock = int.tryParse(value!) ?? 0;
                     });
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Rating cannot be empty!";
+                      return "Stock cannot be empty!";
                     }
                     if (int.tryParse(value) == null) {
-                      return "Rating must be a number!";
+                      return "Stock must be a number!";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              // Image URL Field
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Image URL",
+                    labelText: "Image URL",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _imageUrl = value!;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Image URL cannot be empty!";
                     }
                     return null;
                   },
@@ -158,15 +208,17 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                         // Send request to Django server
                         final response = await request.postJson(
                           "http://localhost:8000/create-flutter/",
-                          jsonEncode(<String, String>{
-                            'name': _name,
-                            'price': _price.toString(),
-                            'description': _description,
-                            'rating': _rating.toString(),
+                          jsonEncode(<String, dynamic>{
+                              'name': _name,
+                              'price': _price.toString(),
+                              'description': _description,
+                              'rarity': _rarity,
+                              'stock': _stock.toString(),
+                              'image_url': _imageUrl,
                           }),
                         );
                         if (context.mounted) {
-                          if (response['status'] == 'success') {
+                          if (response['status'] == true) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("New product has been saved successfully!"),

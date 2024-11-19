@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pixietreasures/models/product_entry.dart'; // Adjusted import path
+import 'package:pixietreasures/models/product_entry.dart';
 
 class ProductDetail extends StatelessWidget {
   final ProductEntry product;
